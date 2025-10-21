@@ -51,7 +51,7 @@ class DatabaseOptimizationTestCase(unittest.TestCase):
         stats = pool.get_stats()
         
         self.assertGreaterEqual(stats['total_connections'], 2)
-        print(f"   ✅ Pool created with {stats['total_connections']} connections")
+        print(f"   [EMOJI] Pool created with {stats['total_connections']} connections")
         
         pool.close_all()
     
@@ -71,8 +71,8 @@ class DatabaseOptimizationTestCase(unittest.TestCase):
         
         # Should have reused connections (not created 5 new ones)
         self.assertLess(stats['total_created'], 5)
-        print(f"   ✅ Reused connections: {stats['cache_hits']} hits")
-        print(f"   ✅ Hit rate: {stats['hit_rate']}")
+        print(f"   [EMOJI] Reused connections: {stats['cache_hits']} hits")
+        print(f"   [EMOJI] Hit rate: {stats['hit_rate']}")
         
         pool.close_all()
     
@@ -84,15 +84,15 @@ class DatabaseOptimizationTestCase(unittest.TestCase):
         analyzer = QueryAnalyzer(slow_query_threshold=0.5)
         
         query = "SELECT * FROM users WHERE city = 'New York'"
-        result = analyzer.analyze_query(self.conn.connection, query)
+        result = analyzer.analyze_query(self.conn, query)
         
         self.assertIn('analysis', result)
         self.assertIn('execution_time', result['analysis'])
         self.assertIn('rows_returned', result['analysis'])
         
-        print(f"   ✅ Query analyzed")
-        print(f"   ✅ Execution time: {result['analysis']['execution_time']:.4f}s")
-        print(f"   ✅ Rows returned: {result['analysis']['rows_returned']}")
+        print(f"   [EMOJI] Query analyzed")
+        print(f"   [EMOJI] Execution time: {result['analysis']['execution_time']:.4f}s")
+        print(f"   [EMOJI] Rows returned: {result['analysis']['rows_returned']}")
     
     # Test 4: Slow Query Detection
     def test_04_slow_query_detection(self):
@@ -103,16 +103,16 @@ class DatabaseOptimizationTestCase(unittest.TestCase):
         
         # Execute a query that should be marked as slow
         query = "SELECT * FROM orders WHERE status = 'pending'"
-        result = analyzer.analyze_query(self.conn.connection, query)
+        result = analyzer.analyze_query(self.conn, query)
         
         # Check if detected as slow
         if result['analysis']['is_slow']:
-            print(f"   ✅ Slow query detected: {result['analysis']['execution_time']:.4f}s")
+            print(f"   [EMOJI] Slow query detected: {result['analysis']['execution_time']:.4f}s")
         
         # Get slow queries
         slow_queries = analyzer.get_slow_queries()
         self.assertGreaterEqual(len(slow_queries), 0)
-        print(f"   ✅ Total slow queries: {len(slow_queries)}")
+        print(f"   [EMOJI] Total slow queries: {len(slow_queries)}")
     
     # Test 5: Query Caching
     def test_05_query_caching(self):
@@ -126,7 +126,7 @@ class DatabaseOptimizationTestCase(unittest.TestCase):
         # First request (cache miss)
         result1 = cache.get(query)
         self.assertIsNone(result1)
-        print("   ✅ First request: Cache miss")
+        print("   [EMOJI] First request: Cache miss")
         
         # Cache the result
         cursor = self.conn.execute(query)
@@ -136,13 +136,13 @@ class DatabaseOptimizationTestCase(unittest.TestCase):
         # Second request (cache hit)
         result2 = cache.get(query)
         self.assertIsNotNone(result2)
-        print("   ✅ Second request: Cache hit")
+        print("   [EMOJI] Second request: Cache hit")
         
         # Check stats
         stats = cache.get_stats()
         self.assertEqual(stats['hits'], 1)
         self.assertEqual(stats['misses'], 1)
-        print(f"   ✅ Hit rate: {stats['hit_rate']}")
+        print(f"   [EMOJI] Hit rate: {stats['hit_rate']}")
     
     # Test 6: Cache Invalidation
     def test_06_cache_invalidation(self):
@@ -159,7 +159,7 @@ class DatabaseOptimizationTestCase(unittest.TestCase):
         # Verify it's cached
         result = cache.get(query)
         self.assertIsNotNone(result)
-        print("   ✅ Result cached")
+        print("   [EMOJI] Result cached")
         
         # Invalidate
         cache.invalidate(query)
@@ -167,7 +167,7 @@ class DatabaseOptimizationTestCase(unittest.TestCase):
         # Verify it's gone
         result = cache.get(query)
         self.assertIsNone(result)
-        print("   ✅ Cache invalidated")
+        print("   [EMOJI] Cache invalidated")
     
     # Test 7: Index Creation
     def test_07_index_creation(self):
@@ -177,17 +177,17 @@ class DatabaseOptimizationTestCase(unittest.TestCase):
         analyzer = IndexAnalyzer()
         
         # Create index
-        result = analyzer.create_index(self.conn.connection, 'users', 'email')
+        result = analyzer.create_index(self.conn, 'users', 'email')
         
         self.assertIn('index_name', result)
-        print(f"   ✅ Index created: {result['index_name']}")
+        print(f"   [EMOJI] Index created: {result['index_name']}")
         
         # Verify index exists
-        indexes = analyzer.get_table_indexes(self.conn.connection, 'users')
+        indexes = analyzer.get_table_indexes(self.conn, 'users')
         index_names = [idx['name'] for idx in indexes]
         
         self.assertIn(result['index_name'], index_names)
-        print(f"   ✅ Index verified in table")
+        print(f"   [EMOJI] Index verified in table")
     
     # Test 8: Index Performance Impact
     def test_08_index_performance_impact(self):
@@ -220,8 +220,8 @@ class DatabaseOptimizationTestCase(unittest.TestCase):
         results = cursor.fetchall()
         time_with = time.time() - start
         
-        print(f"   ✅ Without index: {time_without:.4f}s")
-        print(f"   ✅ With index: {time_with:.4f}s")
+        print(f"   [EMOJI] Without index: {time_without:.4f}s")
+        print(f"   [EMOJI] With index: {time_with:.4f}s")
         
         # With index should be faster or equal
         self.assertLessEqual(time_with, time_without * 1.5)
@@ -245,7 +245,7 @@ class DatabaseOptimizationTestCase(unittest.TestCase):
         stats = pool.get_stats()
         
         self.assertEqual(stats['in_use'], 3)
-        print(f"   ✅ In use: {stats['in_use']}")
+        print(f"   [EMOJI] In use: {stats['in_use']}")
         
         # Release connections
         for conn in connections:
@@ -253,7 +253,7 @@ class DatabaseOptimizationTestCase(unittest.TestCase):
         
         stats = pool.get_stats()
         self.assertEqual(stats['in_use'], 0)
-        print(f"   ✅ After release: {stats['in_use']} in use")
+        print(f"   [EMOJI] After release: {stats['in_use']} in use")
         
         pool.close_all()
     
@@ -272,7 +272,7 @@ class DatabaseOptimizationTestCase(unittest.TestCase):
         # Should be in cache
         result = cache.get(query)
         self.assertIsNotNone(result)
-        print("   ✅ Result cached")
+        print("   [EMOJI] Result cached")
         
         # Wait for expiration
         time.sleep(1.5)
@@ -280,7 +280,7 @@ class DatabaseOptimizationTestCase(unittest.TestCase):
         # Should be expired
         result = cache.get(query)
         self.assertIsNone(result)
-        print("   ✅ Cache expired after TTL")
+        print("   [EMOJI] Cache expired after TTL")
 
 
 def run_tests():
@@ -306,17 +306,17 @@ def run_tests():
         print(f"Success rate: {success_rate:.1f}%")
     
     if result.failures:
-        print("\n❌ FAILURES:")
+        print("\n[EMOJI] FAILURES:")
         for test, traceback in result.failures:
             print(f"  - {test}")
     
     if result.errors:
-        print("\n💥 ERRORS:")
+        print("\n[EMOJI] ERRORS:")
         for test, traceback in result.errors:
             print(f"  - {test}")
     
     if not result.failures and not result.errors:
-        print("\n🎉 ALL TESTS PASSED! 🎉")
+        print("\n[EMOJI] ALL TESTS PASSED! [EMOJI]")
     
     print("=" * 60)
     
@@ -331,10 +331,10 @@ if __name__ == "__main__":
         success = run_tests()
         exit(0 if success else 1)
     except KeyboardInterrupt:
-        print("\n\n⚠️  Tests interrupted by user")
+        print("\n\n[EMOJI]️  Tests interrupted by user")
         exit(1)
     except Exception as e:
-        print(f"\n\n💥 Unexpected error: {e}")
+        print(f"\n\n[EMOJI] Unexpected error: {e}")
         import traceback
         traceback.print_exc()
         exit(1)

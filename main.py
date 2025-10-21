@@ -35,14 +35,14 @@ def demo_connection_pool():
     # Create connection pool
     pool = ConnectionPool(db_path, min_connections=2, max_connections=5)
     
-    print("\n📊 Connection Pool Stats:")
+    print("\n[EMOJI] Connection Pool Stats:")
     stats = pool.get_stats()
     print(f"   Total connections: {stats['total_connections']}")
     print(f"   Available: {stats['available']}")
     print(f"   In use: {stats['in_use']}")
     
     # Use connections
-    print("\n🔄 Getting connections from pool:")
+    print("\n[EMOJI] Getting connections from pool:")
     connections = []
     for i in range(3):
         conn = pool.get_connection()
@@ -50,7 +50,7 @@ def demo_connection_pool():
         print(f"   Connection {i+1} acquired")
     
     stats = pool.get_stats()
-    print(f"\n📊 After acquiring 3 connections:")
+    print(f"\n[EMOJI] After acquiring 3 connections:")
     print(f"   Available: {stats['available']}")
     print(f"   In use: {stats['in_use']}")
     
@@ -58,7 +58,7 @@ def demo_connection_pool():
     for conn in connections:
         pool.release_connection(conn)
     
-    print("\n✅ Connections released back to pool")
+    print("\n[EMOJI] Connections released back to pool")
     
     pool.close_all()
 
@@ -75,7 +75,7 @@ def demo_query_analysis():
     analyzer = QueryAnalyzer(slow_query_threshold=0.1)
     
     # Analyze a query
-    print("\n🔍 Analyzing query performance:")
+    print("\n[EMOJI] Analyzing query performance:")
     query = "SELECT * FROM users WHERE city = 'New York'"
     
     result = analyzer.analyze_query(conn.connection, query)
@@ -87,7 +87,7 @@ def demo_query_analysis():
     print(f"   Slow query: {'Yes' if analysis['is_slow'] else 'No'}")
     
     # Get stats
-    print("\n📊 Query Statistics:")
+    print("\n[EMOJI] Query Statistics:")
     stats = analyzer.get_query_stats()
     print(f"   Total queries: {stats['total_queries']}")
     print(f"   Slow queries: {stats['slow_queries']}")
@@ -110,7 +110,7 @@ def demo_query_caching():
     query = "SELECT * FROM users WHERE city = 'Chicago'"
     
     # First request (cache miss)
-    print("\n🔍 First request (cache miss):")
+    print("\n[EMOJI] First request (cache miss):")
     start = time.time()
     cached_result = cache.get(query)
     
@@ -118,18 +118,18 @@ def demo_query_caching():
         cursor = conn.execute(query)
         result = cursor.fetchall()
         cache.set(query, None, result)
-        print(f"   ❌ Cache miss - Query executed in {time.time() - start:.4f}s")
+        print(f"   [EMOJI] Cache miss - Query executed in {time.time() - start:.4f}s")
     
     # Second request (cache hit)
-    print("\n🔍 Second request (cache hit):")
+    print("\n[EMOJI] Second request (cache hit):")
     start = time.time()
     cached_result = cache.get(query)
     
     if cached_result is not None:
-        print(f"   ✅ Cache hit - Retrieved in {time.time() - start:.6f}s")
+        print(f"   [EMOJI] Cache hit - Retrieved in {time.time() - start:.6f}s")
     
     # Get cache stats
-    print("\n📊 Cache Statistics:")
+    print("\n[EMOJI] Cache Statistics:")
     stats = cache.get_stats()
     print(f"   Cache size: {stats['cache_size']}")
     print(f"   Hits: {stats['hits']}")
@@ -154,7 +154,7 @@ def demo_indexing():
     analyzer = IndexAnalyzer()
     
     # Test query without index
-    print("\n🐌 Query WITHOUT index:")
+    print("\n[EMOJI] Query WITHOUT index:")
     query = "SELECT * FROM users WHERE email = 'user500@example.com'"
     
     start = time.time()
@@ -167,12 +167,12 @@ def demo_indexing():
     print(f"   Rows: {len(results)}")
     
     # Create index
-    print("\n📊 Creating index on email column...")
+    print("\n[EMOJI] Creating index on email column...")
     index_info = analyzer.create_index(conn, 'users', 'email')
     print(f"   Index created: {index_info['index_name']}")
     
     # Test query with index
-    print("\n🚀 Query WITH index:")
+    print("\n[EMOJI] Query WITH index:")
     start = time.time()
     cursor = conn.execute(query)
     results = cursor.fetchall()
@@ -184,7 +184,7 @@ def demo_indexing():
     
     # Show improvement
     speedup = time_without / time_with if time_with > 0 else 0
-    print(f"\n✅ Performance Improvement:")
+    print(f"\n[EMOJI] Performance Improvement:")
     print(f"   Speedup: {speedup:.2f}x faster")
     print(f"   Time saved: {(time_without - time_with):.4f}s")
     
@@ -203,7 +203,7 @@ def demo_query_optimization():
     analyzer = QueryAnalyzer()
     
     # Slow query (SELECT *)
-    print("\n🐌 Slow Query (SELECT *):")
+    print("\n[EMOJI] Slow Query (SELECT *):")
     slow_query = "SELECT * FROM users WHERE city = 'New York'"
     
     start = time.time()
@@ -215,7 +215,7 @@ def demo_query_optimization():
     print(f"   Time: {slow_time:.4f}s")
     
     # Optimized query (SELECT specific columns)
-    print("\n🚀 Optimized Query (SELECT specific columns):")
+    print("\n[EMOJI] Optimized Query (SELECT specific columns):")
     fast_query = "SELECT id, username, email FROM users WHERE city = 'New York'"
     
     start = time.time()
@@ -228,7 +228,7 @@ def demo_query_optimization():
     
     # Compare
     comparison = analyzer.compare_queries(conn, slow_query, fast_query)
-    print(f"\n✅ Comparison:")
+    print(f"\n[EMOJI] Comparison:")
     print(f"   Speedup: {comparison['speedup']}")
     print(f"   Faster: {comparison['faster']}")
     
@@ -247,7 +247,7 @@ def demo_explain_query():
     analyzer = QueryAnalyzer()
     
     # Explain query without index
-    print("\n🔍 Query Plan WITHOUT index:")
+    print("\n[EMOJI] Query Plan WITHOUT index:")
     query = "SELECT * FROM users WHERE email = 'user100@example.com'"
     
     plan = analyzer.explain_query(conn, query)
@@ -259,7 +259,7 @@ def demo_explain_query():
     index_analyzer.create_index(conn, 'users', 'email')
     
     # Explain query with index
-    print("\n🔍 Query Plan WITH index:")
+    print("\n[EMOJI] Query Plan WITH index:")
     plan = analyzer.explain_query(conn, query)
     print(f"   Query: {query}")
     print(f"   Plan: {plan['plan']}")
@@ -300,7 +300,7 @@ def main():
             os.remove('demo.db')
         
     except Exception as e:
-        print(f"\n❌ Error: {e}")
+        print(f"\n[EMOJI] Error: {e}")
         import traceback
         traceback.print_exc()
 
